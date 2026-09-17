@@ -1,0 +1,559 @@
+<title>USA Resource Hub</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Work+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@500&display=swap');
+
+  :root{
+    --paper:#FBF7FF;
+    --paper-tint:#F2E9FF;
+    --ink:#1B1226;
+    --ink-soft:#54465F;
+    --marigold:#F2760F;
+    --marigold-deep:#C4510A;
+    --berry:#B0246B;
+    --teal:#0E8C82;
+    --gold:#F0B429;
+    --line: rgba(27,18,38,0.14);
+    --surface:#ffffff;
+    --field:#ffffff;
+    --shadow: 0 1px 2px rgba(27,18,38,0.06), 0 8px 24px rgba(27,18,38,0.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#150F1D; --paper-tint:#1F1729; --ink:#F4EEFB; --ink-soft:#C3B7D2;
+      --marigold:#FF9142; --marigold-deep:#FFB073; --berry:#E8629E; --teal:#3FC8BC; --gold:#F5C56B;
+      --line: rgba(244,238,251,0.16); --surface:#201830; --field:#241A33;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 28px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#150F1D; --paper-tint:#1F1729; --ink:#F4EEFB; --ink-soft:#C3B7D2;
+    --marigold:#FF9142; --marigold-deep:#FFB073; --berry:#E8629E; --teal:#3FC8BC; --gold:#F5C56B;
+    --line: rgba(244,238,251,0.16); --surface:#201830; --field:#241A33;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 28px rgba(0,0,0,0.35);
+  }
+
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family:'Work Sans', ui-sans-serif, system-ui, sans-serif; line-height:1.55; }
+  h1,h2,h3{ font-family:'Unbounded', ui-sans-serif, system-ui, sans-serif; text-wrap:balance; margin:0; }
+  a{ color:inherit; }
+  img{ max-width:100%; }
+  :focus-visible{ outline:2px solid var(--teal); outline-offset:2px; }
+  ::selection{ background:var(--gold); color:var(--ink); }
+  .wrap{ max-width:1040px; margin:0 auto; padding-inline:24px; }
+  .eyebrow{ font-family:'IBM Plex Mono', ui-monospace, monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:0.72rem; font-weight:500; }
+  .mono{ font-family:'IBM Plex Mono', ui-monospace, monospace; }
+  .lede{ color:var(--ink-soft); max-width:60ch; }
+
+  .btn{ display:inline-flex; align-items:center; gap:8px; font-weight:600; font-size:0.9rem; font-family:inherit; padding:11px 20px; border-radius:999px; text-decoration:none; border:1px solid transparent; cursor:pointer; white-space:nowrap; }
+  .btn-primary{ background:var(--marigold); color:#1B1226; }
+  .btn-primary:hover{ background:var(--marigold-deep); }
+  .btn-ghost{ border-color:var(--line); color:var(--ink); background:none; }
+  .btn-ghost:hover{ background:var(--paper-tint); }
+  .btn[disabled]{ opacity:0.55; cursor:not-allowed; }
+  .btn-sm{ padding:8px 15px; font-size:0.82rem; }
+
+  /* ---------------- header / router nav ---------------- */
+  header{ position:sticky; top:0; z-index:50; background:color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
+  .head-row{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding-block:14px; }
+  .brand{ display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink); }
+  .brand strong{ font-family:'Unbounded'; font-size:1rem; font-weight:800; }
+  .brand span{ display:block; font-family:'IBM Plex Mono'; font-size:0.65rem; color:var(--ink-soft); }
+
+  .page-nav{ display:flex; align-items:center; gap:4px; flex-wrap:wrap; }
+  .page-nav button{
+    font:inherit; font-size:0.86rem; font-weight:600; font-family:'Work Sans';
+    background:none; border:none; cursor:pointer; color:var(--ink-soft);
+    padding:9px 14px; border-radius:999px; transition:background .15s ease, color .15s ease;
+    white-space:nowrap;
+  }
+  .page-nav button:hover{ background:var(--paper-tint); color:var(--ink); }
+  .page-nav button.active{ background:var(--ink); color:var(--paper); }
+
+  .gear-wrap{ position:relative; }
+  .gear-btn{ background:none; border:1px solid var(--line); border-radius:10px; width:38px; height:38px; cursor:pointer; color:var(--ink-soft); font-size:1rem; display:flex; align-items:center; justify-content:center; }
+  .gear-btn:hover{ color:var(--ink); background:var(--paper-tint); }
+  .manage-panel{
+    position:absolute; top:46px; right:0; width:270px; background:var(--surface); border:1px solid var(--line);
+    border-radius:14px; box-shadow:var(--shadow); padding:16px; display:none; flex-direction:column; gap:10px; z-index:60;
+  }
+  .manage-panel.open{ display:flex; }
+  .manage-panel .eyebrow{ color:var(--berry); }
+  .manage-panel p.hint{ margin:0; font-size:0.8rem; color:var(--ink-soft); }
+  .toggle-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:0.88rem; padding:4px 0; }
+  .toggle-row.locked{ color:var(--ink-soft); }
+  .switch{ position:relative; width:36px; height:20px; flex:none; }
+  .switch input{ opacity:0; width:100%; height:100%; margin:0; position:absolute; cursor:pointer; }
+  .switch .track{ position:absolute; inset:0; background:var(--line); border-radius:999px; transition:background .15s ease; pointer-events:none; }
+  .switch .knob{ position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:var(--surface); box-shadow:0 1px 3px rgba(0,0,0,0.3); transition:transform .15s ease; pointer-events:none; }
+  .switch input:checked + .track{ background:var(--teal); }
+  .switch input:checked + .track + .knob{ transform:translateX(16px); }
+  .switch input:disabled + .track{ background:var(--line); opacity:0.6; }
+
+  /* ---------------- pages ---------------- */
+  main{ min-height:calc(100vh - 64px); }
+  section.page{ padding-block:56px 80px; }
+  section.page[hidden]{ display:none; }
+  .page-head{ margin-bottom:36px; display:grid; gap:10px; max-width:680px; }
+  .page-head h1{ font-size:clamp(1.9rem,3.6vw,2.7rem); }
+
+  .concept-banner{
+    display:flex; align-items:flex-start; gap:12px; background:var(--paper-tint); border:1px solid var(--line);
+    border-radius:16px; padding:16px 18px; margin-bottom:32px; max-width:760px;
+  }
+  .concept-banner .tag{ flex:none; font-family:'IBM Plex Mono'; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; background:var(--gold); color:#1B1226; padding:4px 9px; border-radius:999px; margin-top:2px; }
+  .concept-banner p{ margin:0; font-size:0.9rem; color:var(--ink-soft); }
+
+  /* home */
+  .hub-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:18px; }
+  .hub-card{
+    text-align:left; display:flex; flex-direction:column; gap:10px; background:var(--surface); border:1px solid var(--line);
+    border-radius:18px; padding:22px; cursor:pointer; font:inherit; color:var(--ink);
+    transition:transform .15s ease, border-color .15s ease;
+  }
+  .hub-card:hover{ transform:translateY(-3px); border-color:var(--teal); }
+  .hub-dot{ width:12px; height:12px; border-radius:4px; }
+  .hub-card h3{ font-size:1.08rem; }
+  .hub-card p{ margin:0; font-size:0.87rem; color:var(--ink-soft); }
+  .hub-card .go{ margin-top:auto; font-family:'IBM Plex Mono'; font-size:0.74rem; color:var(--teal); }
+
+  /* rights */
+  .rights-list{ display:grid; gap:2px; background:var(--line); border:1px solid var(--line); border-radius:18px; overflow:hidden; max-width:760px; }
+  .rights-item{ background:var(--surface); }
+  .rights-item summary{ list-style:none; cursor:pointer; padding:18px 22px; display:flex; align-items:center; justify-content:space-between; gap:14px; font-family:'Unbounded'; font-size:0.98rem; font-weight:600; }
+  .rights-item summary::-webkit-details-marker{ display:none; }
+  .rights-item summary .chev{ font-family:'IBM Plex Mono'; color:var(--ink-soft); transition:transform .15s ease; flex:none; }
+  .rights-item[open] summary .chev{ transform:rotate(90deg); }
+  .rights-item .body{ padding:0 22px 20px; color:var(--ink-soft); font-size:0.92rem; }
+  .rights-item .body ul{ margin:0; padding-left:18px; display:grid; gap:6px; }
+  .hotline-card{ margin-top:22px; max-width:760px; background:var(--ink); color:var(--paper); border-radius:18px; padding:24px; }
+  .hotline-card .eyebrow{ color:var(--gold); }
+  .hotline-card h3{ color:var(--paper); font-size:1.1rem; margin:8px 0 10px; }
+  .hotline-card ul{ margin:0; padding:0; list-style:none; display:grid; gap:8px; font-size:0.9rem; }
+  .hotline-card li{ display:flex; justify-content:space-between; gap:12px; color:color-mix(in srgb, var(--paper) 82%, transparent); border-top:1px solid rgba(255,255,255,0.12); padding-top:8px; }
+  .hotline-card li:first-child{ border-top:none; padding-top:0; }
+  .hotline-card b{ color:var(--paper); font-family:'IBM Plex Mono'; font-weight:500; font-size:0.85rem; }
+
+  /* resources / programs card grids */
+  .card-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:18px; }
+  .link-card{ display:block; background:var(--surface); border:1px solid var(--line); border-radius:4px 20px 4px 20px; padding:22px; text-decoration:none; color:var(--ink); transition:transform .15s ease, border-color .15s ease; }
+  .link-card:hover{ transform:translateY(-3px); border-color:var(--teal); }
+  .link-card .go{ font-family:'IBM Plex Mono'; font-size:0.76rem; color:var(--teal); }
+  .link-card h3{ font-size:1.02rem; margin:8px 0 6px; }
+  .link-card p{ margin:0; color:var(--ink-soft); font-size:0.86rem; }
+  .cat-block + .cat-block{ margin-top:36px; }
+  .cat-block h2{ font-size:1.15rem; margin-bottom:14px; }
+  .cat-block .cat-eyebrow{ margin-bottom:6px; display:block; }
+
+  /* scholarships */
+  .schol-list{ display:grid; gap:14px; max-width:780px; }
+  .schol-card{ background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:20px 22px; display:grid; grid-template-columns:1fr auto; gap:16px; align-items:center; }
+  .schol-card h3{ font-size:1.03rem; margin-bottom:4px; }
+  .schol-card p{ margin:0; color:var(--ink-soft); font-size:0.88rem; }
+  .schol-card .amount{ font-family:'IBM Plex Mono'; font-size:0.78rem; color:var(--marigold-deep); margin-top:6px; display:block; }
+  @media (max-width:560px){ .schol-card{ grid-template-columns:1fr; } }
+
+  /* calendar */
+  .cal-table{ width:100%; border-collapse:separate; border-spacing:0; max-width:860px; background:var(--surface); border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+  .cal-table th{ text-align:left; font-family:'IBM Plex Mono'; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-soft); padding:12px 18px; border-bottom:1px solid var(--line); }
+  .cal-table td{ padding:14px 18px; border-bottom:1px solid var(--line); font-size:0.9rem; vertical-align:middle; }
+  .cal-table tr:last-child td{ border-bottom:none; }
+  .cal-date{ font-family:'IBM Plex Mono'; color:var(--marigold-deep); white-space:nowrap; }
+  .cal-title{ font-weight:600; }
+  .cal-meta{ color:var(--ink-soft); font-size:0.84rem; }
+  .rsvp-btn{ font:inherit; font-size:0.82rem; font-weight:600; padding:8px 16px; border-radius:999px; border:1px solid var(--marigold); background:none; color:var(--marigold-deep); cursor:pointer; white-space:nowrap; }
+  .rsvp-btn:hover{ background:var(--paper-tint); }
+  .rsvp-btn.done{ border-color:var(--teal); color:var(--teal); cursor:default; }
+  .cal-toolbar{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:18px; max-width:860px; flex-wrap:wrap; }
+  .tooltip-wrap{ position:relative; display:inline-block; }
+  .tooltip-wrap .tip{ position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); background:var(--ink); color:var(--paper); font-size:0.76rem; padding:8px 12px; border-radius:8px; width:200px; text-align:center; opacity:0; pointer-events:none; transition:opacity .15s ease; }
+  .tooltip-wrap:hover .tip{ opacity:1; }
+
+  @media (max-width:760px){
+    .head-row{ flex-wrap:wrap; }
+    .page-nav{ order:3; width:100%; overflow-x:auto; padding-bottom:4px; }
+  }
+</style>
+
+<header>
+  <div class="wrap head-row">
+    <a href="#home" class="brand">
+      <svg width="30" height="30" viewBox="0 0 34 34" fill="none" aria-hidden="true">
+        <path d="M17 6C13 1 4 2 4 10c0 6 7 8 13 12 6-4 13-6 13-12C30 2 21 1 17 6Z" fill="var(--marigold)"/>
+        <circle cx="17" cy="15" r="2.6" fill="var(--ink)"/>
+      </svg>
+      <span><strong>USA</strong><span>Resource Hub — concept</span></span>
+    </a>
+    <nav class="page-nav" id="pageNav"></nav>
+    <div class="gear-wrap">
+      <button class="gear-btn" id="gearBtn" title="Manage pages" aria-label="Manage pages">⚙</button>
+      <div class="manage-panel" id="managePanel">
+        <p class="eyebrow">Manage pages</p>
+        <p class="hint">Turn pages on or off — only enabled pages show up in the nav above. Saved on this device.</p>
+        <div id="toggleList"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" id="main"></main>
+
+<script>
+(function(){
+  "use strict";
+
+  var PAGES = [
+    {id:"home", label:"Home", locked:true},
+    {id:"rights", label:"Know Your Rights"},
+    {id:"resources", label:"E-Resources"},
+    {id:"scholarships", label:"Scholarships"},
+    {id:"programs", label:"Programs & Orgs"},
+    {id:"calendar", label:"Calendar & RSVP"}
+  ];
+
+  var STORE_KEY = "usa-hub:visibility:v1";
+  var visibility;
+  try{
+    visibility = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+  }catch(e){ visibility = null; }
+  if(!visibility){
+    visibility = {};
+    PAGES.forEach(function(p){ visibility[p.id] = true; });
+  }
+  function saveVisibility(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(visibility)); }catch(e){} }
+  function isVisible(id){ return visibility[id] !== false; }
+
+  var HUB_CARDS = [
+    {id:"rights", color:"var(--marigold)", title:"Know Your Rights", desc:"Plain-language guidance for ICE encounters, DACA renewal, and state aid."},
+    {id:"resources", color:"var(--berry)", title:"E-Resources", desc:"A curated library of legal, financial, and mental-health reading."},
+    {id:"scholarships", color:"var(--gold)", title:"Scholarships", desc:"Funding open to undocumented, DACA, and mixed-status students."},
+    {id:"programs", color:"var(--teal)", title:"Programs & Orgs", desc:"Redirects to national partners like HACU and HACE for internships and fellowships."},
+    {id:"calendar", color:"var(--marigold-deep)", title:"Calendar & RSVP", desc:"Concept preview — one-click RSVP synced to your student email."}
+  ];
+
+  var RIGHTS_TOPICS = [
+    {
+      q:"If ICE comes to your door",
+      a:["You do not have to open the door. Ask the agent to slide any warrant under the door or hold it up to a window.",
+         "A warrant is only valid if it is signed by a judge and lists your specific address — an ICE-issued warrant is not the same thing.",
+         "You have the right to remain silent and the right to speak with a lawyer before answering questions."]
+    },
+    {
+      q:"Your rights during a traffic stop",
+      a:["You can show your license, registration, and insurance without answering questions about your immigration status.",
+         "You can ask \"Am I free to go?\" — if the officer says yes, you may leave calmly.",
+         "You do not have to consent to a vehicle search."]
+    },
+    {
+      q:"DACA renewal timeline",
+      a:["USCIS recommends filing your renewal 120–150 days before your current DACA expires.",
+         "Keep copies of every form and receipt notice — bring them to our DACA Renewal Clinic event for a free review."]
+    },
+    {
+      q:"State financial aid without a SSN",
+      a:["Many states have their own financial aid application for students who can't file a FAFSA — ask your financial aid office if [Your State] has one.",
+         "Some private scholarships (see the Scholarships page) don't require proof of citizenship at all."]
+    }
+  ];
+
+  var HOTLINES = [
+    {label:"Campus legal hotline", value:"[insert number]"},
+    {label:"24/7 immigrant rights hotline", value:"[insert number]"},
+    {label:"United We Dream Hotline", value:"unitedwedream.org/hotline"}
+  ];
+
+  var RESOURCE_CATEGORIES = [
+    {
+      name:"Legal & know-your-rights",
+      items:[
+        {url:"https://unitedwedream.org", label:"unitedwedream.org", title:"United We Dream", desc:"The largest immigrant youth-led network in the country — organizing tools and rapid-response info."},
+        {url:"https://www.informedimmigrant.com", label:"informedimmigrant.com", title:"Informed Immigrant", desc:"Plain-language guides on DACA, TPS, and know-your-rights."},
+        {url:"https://www.nilc.org", label:"nilc.org", title:"National Immigration Law Center", desc:"Policy updates and factsheets on immigrants' rights and public benefits."}
+      ]
+    },
+    {
+      name:"Mental health & peer support",
+      items:[
+        {url:"#", label:"[campus counseling]", title:"Campus Counseling Center", desc:"Confidential sessions — ask about drop-in hours for undocumented and mixed-status students."},
+        {url:"https://www.immigrantsrising.org/mentalhealth/", label:"immigrantsrising.org", title:"Immigrants Rising — Mental Health", desc:"A directory built specifically for undocumented students, including sliding-scale therapists."}
+      ]
+    },
+    {
+      name:"Academic & career",
+      items:[
+        {url:"https://www.immigrantsrising.org", label:"immigrantsrising.org", title:"Immigrants Rising", desc:"Entrepreneurship, licensing, and career resources for undocumented young people."},
+        {url:"https://uleadnet.org", label:"uleadnet.org", title:"ULEAD Network", desc:"A national network of undocumented student leaders and the campus programs that support them."}
+      ]
+    }
+  ];
+
+  var SCHOLARSHIPS = [
+    {name:"TheDream.US", amount:"Up to $16,500 toward an Associate's or Bachelor's degree", desc:"For DACA, TPS, and eligible undocumented students at partner colleges.", url:"https://www.thedream.us"},
+    {name:"Golden Door Scholars", amount:"Full-ride partner scholarships + mentorship", desc:"For high-achieving DACA and undocumented students.", url:"https://goldendoorscholars.org"},
+    {name:"Hispanic Scholarship Fund", amount:"Varies by award", desc:"Scholarships and mentoring open to students of Hispanic heritage; check DACA eligibility per award.", url:"https://www.hsf.net"},
+    {name:"[Your University] Foundation Scholarship", amount:"Institutional aid — no SSN required", desc:"Ask your Dean of Students or financial aid office what your school offers directly.", url:"#"}
+  ];
+
+  var PROGRAMS = [
+    {url:"https://www.hacu.net", label:"hacu.net", title:"HACU", desc:"Hispanic Association of Colleges and Universities — national internship and leadership pipeline."},
+    {url:"https://hace-usa.org", label:"hace-usa.org", title:"HACE", desc:"Hispanic Alliance for Career Enhancement — career development, mentorship, and hiring events."},
+    {url:"https://www.immigrantsrising.org", label:"immigrantsrising.org", title:"Immigrants Rising", desc:"Entrepreneurship, licensing, and higher-ed resources for undocumented young people."},
+    {url:"https://uleadnet.org", label:"uleadnet.org", title:"ULEAD Network", desc:"A national network connecting undocumented student leaders across campuses."}
+  ];
+
+  var EVENTS = [
+    {date:"SEP 18", title:"General Body Meeting: Kickoff", meta:"Student Union, Room [###] · 6:00 PM"},
+    {date:"OCT 02", title:"Know Your Rights Workshop", meta:"With a campus immigration attorney · 5:30 PM"},
+    {date:"OCT 21", title:"DACA Renewal Clinic", meta:"Free document review · sign-up required"},
+    {date:"NOV 14", title:"Cultural Night & Potluck", meta:"Great Hall · 6:30 PM"}
+  ];
+
+  function el(tag, attrs, children){
+    var node = document.createElement(tag);
+    attrs = attrs || {};
+    Object.keys(attrs).forEach(function(k){
+      if(k === "class") node.className = attrs[k];
+      else if(k === "html") node.innerHTML = attrs[k];
+      else if(k === "text") node.textContent = attrs[k];
+      else node.setAttribute(k, attrs[k]);
+    });
+    (children || []).forEach(function(c){ if(c) node.appendChild(c); });
+    return node;
+  }
+
+  function linkCard(item){
+    return el("a", {class:"link-card", href:item.url, target: item.url === "#" ? null : "_blank", rel:"noopener"}, [
+      el("span", {class:"go", text:item.label + " ↗"}),
+      el("h3", {text:item.title}),
+      el("p", {text:item.desc})
+    ]);
+  }
+
+  function renderHome(){
+    var wrap = el("section", {class:"page", id:"page-home"});
+    wrap.appendChild(el("div", {class:"page-head"}, [
+      el("p", {class:"eyebrow", style:"color:var(--berry)", text:"Overview"}),
+      el("h1", {text:"One hub for every USA resource."}),
+      el("p", {class:"lede", text:"Know Your Rights, e-resources, scholarships, partner programs, and event RSVPs — each one is its own page, and your board decides which ones are turned on."})
+    ]));
+    var grid = el("div", {class:"hub-grid"});
+    HUB_CARDS.filter(function(c){ return isVisible(c.id); }).forEach(function(c){
+      var card = el("button", {class:"hub-card", type:"button"}, [
+        el("span", {class:"hub-dot", style:"background:"+c.color}),
+        el("h3", {text:c.title}),
+        el("p", {text:c.desc}),
+        el("span", {class:"go", text:"Open page →"})
+      ]);
+      card.addEventListener("click", function(){ location.hash = c.id; });
+      grid.appendChild(card);
+    });
+    wrap.appendChild(grid);
+    return wrap;
+  }
+
+  function renderRights(){
+    var wrap = el("section", {class:"page", id:"page-rights"});
+    wrap.appendChild(el("div", {class:"page-head"}, [
+      el("p", {class:"eyebrow", style:"color:var(--marigold-deep)", text:"Stay informed"}),
+      el("h1", {text:"Know your rights, plainly explained."}),
+      el("p", {class:"lede", text:"General guidance, not legal advice — always confirm specifics with a licensed immigration attorney."})
+    ]));
+    var list = el("div", {class:"rights-list"});
+    RIGHTS_TOPICS.forEach(function(t, i){
+      var details = el("details", {class:"rights-item"});
+      if(i === 0) details.setAttribute("open","");
+      var summary = el("summary", {}, [el("span", {text:t.q}), el("span", {class:"chev mono", text:"›"})]);
+      var body = el("div", {class:"body"});
+      var ul = el("ul");
+      t.a.forEach(function(line){ ul.appendChild(el("li", {text:line})); });
+      body.appendChild(ul);
+      details.appendChild(summary);
+      details.appendChild(body);
+      list.appendChild(details);
+    });
+    wrap.appendChild(list);
+
+    var hotline = el("div", {class:"hotline-card"}, [
+      el("p", {class:"eyebrow", text:"Need help now"}),
+      el("h3", {text:"Save these numbers."})
+    ]);
+    var ul = el("ul");
+    HOTLINES.forEach(function(h){ ul.appendChild(el("li", {}, [el("span", {text:h.label}), el("b", {text:h.value})])); });
+    hotline.appendChild(ul);
+    wrap.appendChild(hotline);
+    return wrap;
+  }
+
+  function renderResources(){
+    var wrap = el("section", {class:"page", id:"page-resources"});
+    wrap.appendChild(el("div", {class:"page-head"}, [
+      el("p", {class:"eyebrow", style:"color:var(--berry)", text:"Curated library"}),
+      el("h1", {text:"E-Resources."}),
+      el("p", {class:"lede", text:"Reading and hotlines, grouped by what you need right now."})
+    ]));
+    RESOURCE_CATEGORIES.forEach(function(cat){
+      var block = el("div", {class:"cat-block"});
+      block.appendChild(el("h2", {text:cat.name}));
+      var grid = el("div", {class:"card-grid"});
+      cat.items.forEach(function(item){ grid.appendChild(linkCard(item)); });
+      block.appendChild(grid);
+      wrap.appendChild(block);
+    });
+    return wrap;
+  }
+
+  function renderScholarships(){
+    var wrap = el("section", {class:"page", id:"page-scholarships"});
+    wrap.appendChild(el("div", {class:"page-head"}, [
+      el("p", {class:"eyebrow", style:"color:var(--gold)", text:"Funding"}),
+      el("h1", {text:"Scholarships open to undocumented students."}),
+      el("p", {class:"lede", text:"Amounts and eligibility change year to year — treat these as a starting list, not a guarantee."})
+    ]));
+    var list = el("div", {class:"schol-list"});
+    SCHOLARSHIPS.forEach(function(s){
+      var card = el("div", {class:"schol-card"}, [
+        el("div", {}, [
+          el("h3", {text:s.name}),
+          el("p", {text:s.desc}),
+          el("span", {class:"amount", text:s.amount})
+        ]),
+        el("a", {class:"btn btn-ghost btn-sm", href:s.url, target: s.url === "#" ? null : "_blank", rel:"noopener", text: s.url === "#" ? "Ask your office" : "View site ↗"})
+      ]);
+      list.appendChild(card);
+    });
+    wrap.appendChild(list);
+    return wrap;
+  }
+
+  function renderPrograms(){
+    var wrap = el("section", {class:"page", id:"page-programs"});
+    wrap.appendChild(el("div", {class:"page-head"}, [
+      el("p", {class:"eyebrow", style:"color:var(--teal)", text:"Partner network"}),
+      el("h1", {text:"Programs beyond our chapter."}),
+      el("p", {class:"lede", text:"Internships, fellowships, and career pipelines run by outside organizations — each card redirects to their site."})
+    ]));
+    var grid = el("div", {class:"card-grid"});
+    PROGRAMS.forEach(function(p){ grid.appendChild(linkCard(p)); });
+    wrap.appendChild(grid);
+    return wrap;
+  }
+
+  function renderCalendar(){
+    var wrap = el("section", {class:"page", id:"page-calendar"});
+    wrap.appendChild(el("div", {class:"page-head"}, [
+      el("p", {class:"eyebrow", style:"color:var(--marigold-deep)", text:"Concept preview"}),
+      el("h1", {text:"Calendar & one-click RSVP."})
+    ]));
+    wrap.appendChild(el("div", {class:"concept-banner"}, [
+      el("span", {class:"tag", text:"Concept"}),
+      el("p", {text:"Not wired up yet: the real version reads events from a spreadsheet your board keeps, and confirms each RSVP straight to a member's .edu email — no separate sign-up form. Click RSVP below to see how that moment would feel."})
+    ]));
+
+    var toolbar = el("div", {class:"cal-toolbar"}, [
+      el("span", {class:"eyebrow", text:"This semester"}),
+    ]);
+    var exportWrap = el("div", {class:"tooltip-wrap"}, [
+      el("button", {class:"btn btn-ghost btn-sm", disabled:"disabled", text:"Export .xlsx"}),
+      el("span", {class:"tip", text:"Coming soon: download an editable spreadsheet and re-upload it to update this page."})
+    ]);
+    toolbar.appendChild(exportWrap);
+    wrap.appendChild(toolbar);
+
+    var table = el("table", {class:"cal-table"});
+    var thead = el("thead", {}, [el("tr", {}, [el("th", {text:"Date"}), el("th", {text:"Event"}), el("th", {text:""})])]);
+    table.appendChild(thead);
+    var tbody = el("tbody");
+    EVENTS.forEach(function(ev){
+      var btn = el("button", {class:"rsvp-btn", type:"button", text:"RSVP"});
+      btn.addEventListener("click", function(){
+        btn.textContent = "✓ You're in";
+        btn.classList.add("done");
+        btn.disabled = true;
+      });
+      var row = el("tr", {}, [
+        el("td", {class:"cal-date", text:ev.date}),
+        el("td", {}, [el("div", {class:"cal-title", text:ev.title}), el("div", {class:"cal-meta", text:ev.meta})]),
+        el("td", {}, [btn])
+      ]);
+      tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    return wrap;
+  }
+
+  var RENDERERS = {
+    home: renderHome, rights: renderRights, resources: renderResources,
+    scholarships: renderScholarships, programs: renderPrograms, calendar: renderCalendar
+  };
+
+  var main = document.getElementById("main");
+  var pageNav = document.getElementById("pageNav");
+  var gearBtn = document.getElementById("gearBtn");
+  var managePanel = document.getElementById("managePanel");
+  var toggleList = document.getElementById("toggleList");
+
+  function buildNav(){
+    pageNav.innerHTML = "";
+    PAGES.filter(function(p){ return isVisible(p.id); }).forEach(function(p){
+      var b = el("button", {type:"button", text:p.label, "data-id":p.id});
+      b.addEventListener("click", function(){ location.hash = p.id; });
+      pageNav.appendChild(b);
+    });
+  }
+
+  function buildToggles(){
+    toggleList.innerHTML = "";
+    PAGES.forEach(function(p){
+      var row = el("div", {class:"toggle-row" + (p.locked ? " locked" : "")});
+      row.appendChild(el("span", {text:p.label + (p.locked ? " (always on)" : "")}));
+      var sw = el("label", {class:"switch"});
+      var input = el("input", {type:"checkbox"});
+      input.checked = isVisible(p.id);
+      if(p.locked) input.disabled = true;
+      input.addEventListener("change", function(){
+        visibility[p.id] = input.checked;
+        saveVisibility();
+        buildNav();
+        if(!isVisible(currentPageId()) ){ location.hash = "home"; }
+        renderPage();
+      });
+      sw.appendChild(input);
+      sw.appendChild(el("span", {class:"track"}));
+      sw.appendChild(el("span", {class:"knob"}));
+      row.appendChild(sw);
+      toggleList.appendChild(row);
+    });
+  }
+
+  function currentPageId(){
+    var id = location.hash.replace("#", "");
+    if(!RENDERERS[id] || !isVisible(id)) id = "home";
+    return id;
+  }
+
+  function renderPage(){
+    var id = currentPageId();
+    main.innerHTML = "";
+    main.appendChild(RENDERERS[id]());
+    Array.prototype.forEach.call(pageNav.querySelectorAll("button"), function(b){
+      b.classList.toggle("active", b.dataset.id === id);
+    });
+    window.scrollTo({top:0, behavior:"instant"});
+  }
+
+  gearBtn.addEventListener("click", function(e){
+    e.stopPropagation();
+    managePanel.classList.toggle("open");
+  });
+  document.addEventListener("click", function(e){
+    if(!managePanel.contains(e.target) && e.target !== gearBtn){ managePanel.classList.remove("open"); }
+  });
+
+  window.addEventListener("hashchange", renderPage);
+
+  buildNav();
+  buildToggles();
+  if(!location.hash) location.hash = "home";
+  renderPage();
+})();
+</script>
